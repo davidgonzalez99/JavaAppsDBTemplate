@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.japo.java.libraries.UtilesEntrada;
 
 /**
  *
@@ -33,10 +34,9 @@ public class DataAccessManager {
     public static final String CAB_LIST_ALU2 = "";
     public static final String CAB_LIST_PROF = "";
     public static final String CAB_LIST_PROF2 = "";
-    
+
     private Connection con;
     private Statement stmt;
-    
 
     public DataAccessManager(Connection con) {
         this.con = con;
@@ -58,7 +58,7 @@ public class DataAccessManager {
         System.out.printf("Versión JDBC ...: %2d.%d%n", dmd.getJDBCMajorVersion(), dmd.getJDBCMinorVersion());
     }
 
-    public final void listarModulos() throws SQLException{
+    public final void listarModulos() throws SQLException {
         System.out.println("---");
         System.out.println("Listado de módulos ...");
         System.out.println("---");
@@ -66,11 +66,11 @@ public class DataAccessManager {
         // con executeQuery (select). Y las que no generan datos sino que generan el número de filas afectadas por la secuencia SQL
         // se atacan con el método executeUpdate() (como insert, delete, update...)
         // Cuando el try termine se cierra el rs que hemos abierto con la sentencia sql_mod
-        try(ResultSet rs = stmt.executeQuery(DEF_SQL_MOD1)){
-            if(rs.next()){
+        try (ResultSet rs = stmt.executeQuery(DEF_SQL_MOD1)) {
+            if (rs.next()) {
                 System.out.println(CAB_LIST_MOD1);
                 System.out.println(CAB_LIST_MOD2);
-                do{
+                do {
                     // getRow devuelve el número de la fila donde está el puntero
                     int fila = rs.getRow();
                     // getInt cogerá el valor del campo id en este caso, ya que contiene datos de tipo entero,
@@ -83,9 +83,56 @@ public class DataAccessManager {
                     int horasCurso = rs.getInt("horasCurso");
                     int curso = rs.getInt("curso");
                     System.out.printf("%-5d %-7d %3s %-33s %-2s %6d %7d%n", fila, id, acronimo, nombre, codigo, horasCurso, curso);
-                }while(rs.next());
-            }else{
+                } while (rs.next());
+            } else {
                 System.out.println("No hay datos que mostrar");
+            }
+        }
+    }
+
+    public final void listarModulos(int lineasPagina) throws SQLException {
+        if (lineasPagina <= 0) {
+            listarModulos();
+        } else {
+            System.out.println("Listado de módulos ...");
+            System.out.println("---");
+            try (ResultSet rs = stmt.executeQuery(DEF_SQL_MOD1)) {
+                if (rs.next()) {
+                    boolean nuevaLineaOK;
+                    int lineaAct = 1;
+                    int paginaAct = 1;
+                    do {
+                        System.out.printf("Página ...: %02d%n", paginaAct);
+                        System.out.println("==============");
+                        System.out.println(CAB_LIST_MOD1);
+                        System.out.println(CAB_LIST_MOD2);
+                        do {
+                            int fila = rs.getRow();
+                            int id = rs.getInt("id");
+                            String acronimo = rs.getString("acronimo");
+                            String nombre = rs.getString("nombre");
+                            String codigo = rs.getString("codigo");
+                            int horasCurso = rs.getInt("horasCurso");
+                            int curso = rs.getInt("curso");
+                            System.out.printf("%-5d %-7d %3s %-33s %-2s %6d %7d%n", fila, id, acronimo, nombre, codigo, horasCurso, curso);
+                            lineaAct++;
+                            nuevaLineaOK = rs.next();
+                        } while (lineaAct <= lineasPagina && nuevaLineaOK);
+                        if (nuevaLineaOK) {
+                            System.out.println("---");
+                            char respuesta = UtilesEntrada.leerOpcion("sSnN", "Siguiente página (S/N) ...: ", "ERROR: Entrada incorrecta");
+                            if (respuesta == 's' || respuesta == 'S') {
+                                paginaAct++;
+                                lineaAct = 1;
+                                System.out.println("---");
+                            } else {
+                                nuevaLineaOK = false;
+                            }
+                        }
+                    } while (nuevaLineaOK);
+                } else {
+                    System.out.println("No hay modulos que mostrar");
+                }
             }
         }
     }
@@ -107,7 +154,7 @@ public class DataAccessManager {
     }
 
     public final void insertarModulosPreparados() throws SQLException {
-        
+
         // Creamos un string que contenga una secuencia SQL preparada, cuyos parámetros serán IN ("?").
         String sql = "INSERT INTO modulo VALUES ( ?, ? ,?, ?, ?, ? )";
         // Creamos un objeto PreparedStatement, cuyo parámetro será el String, mediante la Connection (con)
@@ -121,20 +168,20 @@ public class DataAccessManager {
         sentencia.setString(4, "MP4065");
         sentencia.setInt(5, 200);
         sentencia.setInt(6, 1);
-        
+
         // Ejecutamos el objeto de PreparedStatement, el cual contiene la secuencia SQL con los valores ya añadidos
         sentencia.executeUpdate();
-        
+
         System.out.println("---");
         System.out.println("Inserción de datos con SQL Preparada");
         System.out.println("---");
     }
-    
-    public final void modificarModulos() throws SQLException{
+
+    public final void modificarModulos() throws SQLException {
         System.out.println("---");
         System.out.println("Modificación de datos ...");
         System.out.println("---");
         stmt.executeUpdate(DEF_SQL_MOD4);
     }
-    
+
 }

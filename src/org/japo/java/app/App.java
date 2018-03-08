@@ -17,7 +17,7 @@ import org.japo.java.libraries.UtilesDB;
  * @author David González Candelas - davidgonzalezcandelas@gmail.com
  */
 public class App {
-
+    
     public void launchApp() {
 
         System.out.println("Iniciando acceso a Base de Datos...");
@@ -28,7 +28,6 @@ public class App {
             DataAccessManager dam = new DataAccessManager(con, stmt);
             
             // Lógica de negocio
-            dam.listarModulos();
             
             System.out.println("---");
             System.out.println("Acceso a Base de Datos FINALIZADO");
