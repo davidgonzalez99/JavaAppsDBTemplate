@@ -91,21 +91,37 @@ public class DataAccessManager {
     }
 
     public final void listarModulos(int lineasPagina) throws SQLException {
+        
+        // Si el número de lineas es menor o igual a 0 muestra toda la informacion en una linea
         if (lineasPagina <= 0) {
             listarModulos();
+            
+        // Si el número de lineas es mayor que 0 hace el proceso
         } else {
             System.out.println("Listado de módulos ...");
             System.out.println("---");
+        // Alamacena el resultado de la SQL en el rs
             try (ResultSet rs = stmt.executeQuery(DEF_SQL_MOD1)) {
+        // Si hay mas en el rs sigue el proceso
                 if (rs.next()) {
+        // Semaforo
                     boolean nuevaLineaOK;
+        // Inicializamos la linea y el número de la página a 1
                     int lineaAct = 1;
                     int paginaAct = 1;
+        // Bucle Externo para mostrar el número de página y el encabezado de tabla con cada página
+        // si la información es mayor que la que cabe en la pagina nos pregunta si queremos mostrar 
+        // el resto de información en otra pagina, lo hará dependiendo de la respuesta (sSnN), si la 
+        // respuesta es (sS) mostrará la siguiente pagina, sino el programa finaliza
                     do {
                         System.out.printf("Página ...: %02d%n", paginaAct);
                         System.out.println("==============");
                         System.out.println(CAB_LIST_MOD1);
                         System.out.println(CAB_LIST_MOD2);
+        // Bucle Interno que almacena en variables el contenido de la tabla módulo
+        // y lo muestra por filas, usa un actualizador para llegar al limite de
+        // lineas por pagina (que establecemos nosotros en 3) y usa el semaforo
+        // dependiendo de si hay o no más datos en el rs para salir del blucle
                         do {
                             int fila = rs.getRow();
                             int id = rs.getInt("id");
