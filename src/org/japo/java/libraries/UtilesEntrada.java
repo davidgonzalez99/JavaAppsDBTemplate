@@ -160,4 +160,9 @@ public class UtilesEntrada {
         }while(lecturaOK);
         return dato;
     }
+    
+    public static final String leerTexto(String msgUsr){
+        System.out.print(msgUsr);
+        return SCN.nextLine();
+    }
 }

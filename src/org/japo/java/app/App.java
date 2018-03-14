@@ -6,6 +6,7 @@
 package org.japo.java.app;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import org.japo.java.entities.DataAccessManager;
@@ -22,7 +23,8 @@ public class App {
 
         System.out.println("Iniciando acceso a Base de Datos...");
         System.out.println("---");
-        try(Connection con = UtilesDB.obtenerConexion(); Statement stmt = con.createStatement()) {
+        // Este Statement permite que los datos sean dinámicos, es decir, que sean susceptibles a cambios gracias a los SQL correspondientes
+        try(Connection con = UtilesDB.obtenerConexion(); Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) {
             System.out.println("Acceso a Base de Datos INICIADO");
             System.out.println("---");
             DataAccessManager dam = new DataAccessManager(con, stmt);
